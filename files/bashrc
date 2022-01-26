@@ -1,0 +1,79 @@
+#
+# ~/.bashrc
+#
+
+[[ $- != *i* ]] && return             # If not running interactively, don't do anything
+xhost +local:root > /dev/null 2>&1
+
+
+stty -ixon                            # Disable ctrl-s and ctrl-q
+shopt -s autocd                       # Allow cd into folder without cd, just folder name
+shopt -s checkwinsize
+shopt -s expand_aliases
+
+[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
+
+#
+# Change the window title of X terminals
+#
+
+case ${TERM} in
+	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
+		PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
+		;;
+	screen*)
+		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
+		;;
+esac
+
+#
+# Change bash prompt
+#
+
+if [[ ${EUID} == 0 ]] ; then
+	PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
+else
+	#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+	PS1="\[\033[38;5;2m\]\w\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
+fi
+
+#
+# Aliases
+#
+
+alias ls='ls --color=auto'
+alias grep='grep --colour=auto'
+alias egrep='egrep --colour=auto'
+alias fgrep='fgrep --colour=auto'
+alias ll='ls -hal'
+
+#
+# Confirm Copy / Move / Link
+#
+
+alias cp='cp -i'
+alias mv='mv -i'
+alias ln='ln -i'
+
+#
+# Custom Alias
+#
+
+alias ssc='~/.config/scripts/ssc.sh'
+
+#
+# Infinite History
+#
+
+HISTSIZE=
+HISTFILESIZE=
+HISTCONTROL=ignoredups:erasedups
+HISTTIMEFORMAT="%F %T "
+shopt -s histappend
+
+#
+# Export
+#
+
+GPG_TTY=$(tty)
+export GPG_TTY

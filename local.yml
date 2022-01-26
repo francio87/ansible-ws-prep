@@ -1,0 +1,204 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+  any_errors_fatal: true
+  vars:
+    myuser: "{{ lookup('env','USER') }}"
+
+  tasks:
+
+  - name: Install Software
+    package:
+      name:
+        - python-psutil
+        - dconf
+        - vim
+        - htop
+        - git
+        - ttf-ubuntu-font-family
+        - screen
+        - bind-tools
+      state: latest
+      update_cache: yes
+
+
+  - name: Copy .bashrc file | Tweaks
+    copy:
+      src: files/bashrc
+      dest: "/home/{{ myuser }}/.bashrc"
+    become_user: "{{ myuser }}"
+
+  - name: Ensure that scripts directory exists | Tweaks
+    file:
+      path: "/home/{{ myuser }}/.config/scripts"
+      state: directory
+    become_user: "{{ myuser }}"
+
+  - name: Copy SSC script file | Tweaks
+    copy:
+      src: files/ssc.sh
+      dest: "/home/{{ myuser }}/.config/scripts/ssc.sh"
+      mode: u+rwx
+    become_user: "{{ myuser }}"
+
+################
+### Flatpack ###
+################
+
+  - name: Install Flatpack
+    package:
+      name: flatpak
+      state: latest
+
+  - name: Add flathub remote | Flatpack
+    tags: packages,flatpak,workstation-packages
+    become_user: "{{ myuser }}"
+    flatpak_remote:
+      name: flathub
+      flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+      method: user
+      state: present
+
+  - name: Install Flameshot | Flatpack
+    become_user: "{{ myuser }}"
+    flatpak:
+      name: org.flameshot.Flameshot
+      state: present
+      method: user
+
+  - name: Install Telegram | Flatpack
+    become_user: "{{ myuser }}"
+    flatpak:
+      name: org.telegram.desktop
+      state: present
+      method: user
+
+  - name: Install Anydesk | Flatpack
+    become_user: "{{ myuser }}"
+    flatpak:
+      name: com.anydesk.Anydesk
+      state: present
+      method: user
+
+ # - name: Install Filezilla | Flatpack
+ #   become_user: "{{ myuser }}"
+ #   flatpak:
+ #     name: org.filezillaproject.Filezilla
+ #     state: present
+ #     method: user
+
+
+# 26/01/22 Still bugged on flatpack
+#
+#  - name: Install Peek | Flatpack
+#    become_user: dav
+#    flatpak:
+#      name: com.uploadedlobster.peek
+#      state: present
+#      method: user
+
+
+###############
+#### GNOME ####
+###############
+
+#  - name: Install extensions
+#    package:
+#      name:
+#        - gnome-shell-extensions
+#        - gnome-shell-extension-appindicator
+#      state: latest
+
+### Tweak Gnome
+  - name: Set Gnome dconf settings
+    dconf:
+      key: "{{ item.key }}"
+      value: "{{ item.value }}"
+      state:  "{{ item.state }}"
+    become_user: "{{ myuser }}"
+    with_items:
+      #- { key: "/org/gnome/desktop/peripherals/touchpad/send-events", value: "enabled", state: "present" }
+      #- { key: "/org/gnome/desktop/interface/color-scheme", value: "'prefer-dark'", state: "present" }                         # Dark-Mode Gnome 42
+      - { key: "/org/gnome/desktop/interface/clock-format", value: "'24h'", state: "present" }                                 # 24h Format
+      - { key: "/org/gtk/settings/file-chooser/clock-format", value: "'24h'", state: "present" }                               # 24h Format
+      - { key: "/org/gnome/desktop/peripherals/mouse/natural-scroll", value: "false", state: "present" }                       # Disable natural scroll mouse
+      - { key: "/org/gnome/desktop/peripherals/touchpad/natural-scroll", value: "false", state: "present" }                    # Disable natural scroll tp
+      - { key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click", value: "true", state: "present" }                       # Enable Tap to click
+      - { key: "/org/gnome/desktop/peripherals/touchpad/two-finger-scrolling-enabled", value: "true", state: "present" }       # Enable 2 finger scrll
+      - { key: "/org/gnome/desktop/peripherals/touchpad/edge-scrolling-enabled", value: "false", state: "present" }            # Disable Edge Scrolling
+      - { key: "/org/gnome/desktop/peripherals/keyboard/numlock-state", value: "true", state: "present" }                      # Enable Numlock
+      - { key: "/org/gnome/desktop/wm/preferences/mouse-button-modifier", value: "'<Super>'", state: "present" }               # Super MOD WM mouse
+      - { key: "/org/gnome/desktop/wm/preferences/resize-with-right-button", value: "true", state: "present" }                 # Resize right click
+      - { key: "/org/gnome/desktop/wm/preferences/button-layout", value: "'appmenu:maximize,close'", state: "present" }        # Max, Close Windows
+      - { key: "/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type", value: "'nothing'", state: "present" }       # Disable Standby AC
+      - { key: "/org/gnome/desktop/interface/show-battery-percentage", value: "true", state: "present" }                       # Show battery %
+
+      ############### Custom KB ##############
+
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings", value: "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']", state: "present" }   # Custom KB Array
+
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name", value: "'Terminale'", state: "present" }            # Name - Terminal
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command", value: "'gnome-terminal'", state: "present" }    # Command - Terminal
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding", value: "'<Super>Return'", state: "present" }     # Binding - Terminal
+
+      #- { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings", value: "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']", state: "present" }   # Mod-F > File Browser
+
+      ################ KB ###################
+
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/home", value: "['<Super>f']", state: "present" }                 # Mod-F > File Browser
+      - { key: "/org/gnome/settings-daemon/plugins/media-keys/www", value: "['<Super>w']", state: "present" }                  # Mod-W > Web Broser
+      - { key: "/org/gnome/desktop/wm/keybindings/close", value: "['<Super>q']", state: "present" }                            # Mod-Q > Close App
+      - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-1", value: "['<Super>1']", state: "present" }
+      - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-2", value: "['<Super>2']", state: "present" }
+      - { key: "/org/gnome/desktop/wm/keybindings/move-to-workspace-1", value: "['<Shift><Super>exclam']", state: "present" }
+      - { key: "/org/gnome/desktop/wm/keybindings/move-to-workspace-2", value: "['<Shift><Super>quotedbl']", state: "present" }
+
+
+      #####################  Gnome Terminal Settings ########################
+
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/background-color", value: "'rgb(23,20,33)'", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/bold-color-same-as-fg", value: "true", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/default-size-columns", value: "95", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/default-size-rows", value: "21", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/font", value: "'Ubuntu Mono 16'", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/foreground-color", value: "'rgb(208,207,204)'", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/palette", value: "['rgb(46,52,54)', 'rgb(204,0,0)', 'rgb(78,154,6)', 'rgb(196,160,0)', 'rgb(52,101,164)', 'rgb(117,80,123)', 'rgb(6,152,154)', 'rgb(211,215,207)', 'rgb(85,87,83)', 'rgb(239,41,41)', 'rgb(138,226,52)', 'rgb(252,233,79)', 'rgb(114,159,207)', 'rgb(173,127,168)', 'rgb(52,226,226)', 'rgb(238,238,236)']", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited", value: "true", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-system-font", value: "false", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-theme-colors", value: "false", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/visible-name", value: "'Francio'", state: "present" }
+      - { key: "/org/gnome/terminal/legacy/theme-variant", value: "'dark'", state: "present" }
+
+
+
+####
+# Theme folder 
+###
+
+  - name: Ensure that theme directory exists | Gnome Theme
+    file:
+      path: "/home/{{ myuser }}/.themes"
+      state: directory
+    become_user: "{{ myuser }}"
+
+  - name: Cloning Juno theme repo | Gnome Theme
+    git:
+      repo: https://github.com/EliverLara/Juno.git
+      dest: "/home/{{ myuser }}/.themes/Juno"
+      version: master
+    become_user: "{{ myuser }}"
+
+  - name: Cloning Juno-Mirage theme repo | Gnome Theme
+    git:
+      repo: https://github.com/EliverLara/Juno.git
+      dest: "/home/{{ myuser }}/.themes/Juno-Mirage"
+      version: mirage
+    become_user: "{{ myuser }}"
+
+  - name: Cloning Nordic-Darker theme repo | Gnome Theme
+    git:
+      repo: https://github.com/EliverLara/Nordic.git
+      dest: "/home/{{ myuser }}/.themes/Nordic-Darker"
+      version: darker
+    become_user: "{{ myuser }}" 
