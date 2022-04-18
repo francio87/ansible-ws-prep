@@ -137,7 +137,6 @@
       ############### Custom KB ##############
 
       - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings", value: "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']", state: "present" }   # Custom KB Array
-
       - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name", value: "'Terminale'", state: "present" }            # Name - Terminal
       - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command", value: "'gnome-terminal'", state: "present" }    # Command - Terminal
       - { key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding", value: "'<Super>Return'", state: "present" }     # Binding - Terminal
@@ -169,7 +168,6 @@
       - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-theme-colors", value: "false", state: "present" }
       - { key: "/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/visible-name", value: "'Francio'", state: "present" }
       - { key: "/org/gnome/terminal/legacy/theme-variant", value: "'dark'", state: "present" }
-
 
 
 ####
