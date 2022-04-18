@@ -119,7 +119,7 @@
     become_user: "{{ myuser }}"
     with_items:
       #- { key: "/org/gnome/desktop/peripherals/touchpad/send-events", value: "enabled", state: "present" }
-      #- { key: "/org/gnome/desktop/interface/color-scheme", value: "'prefer-dark'", state: "present" }                         # Dark-Mode Gnome 42
+      - { key: "/org/gnome/desktop/interface/color-scheme", value: "'prefer-dark'", state: "present" }                         # Dark-Mode Gnome 42
       - { key: "/org/gnome/desktop/interface/clock-format", value: "'24h'", state: "present" }                                 # 24h Format
       - { key: "/org/gtk/settings/file-chooser/clock-format", value: "'24h'", state: "present" }                               # 24h Format
       - { key: "/org/gnome/desktop/peripherals/mouse/natural-scroll", value: "false", state: "present" }                       # Disable natural scroll mouse
@@ -173,7 +173,7 @@
 
 
 ####
-# Theme folder 
+# Theme folder
 ###
 
   - name: Ensure that theme directory exists | Gnome Theme
@@ -201,4 +201,4 @@
       repo: https://github.com/EliverLara/Nordic.git
       dest: "/home/{{ myuser }}/.themes/Nordic-Darker"
       version: darker
-    become_user: "{{ myuser }}" 
+    become_user: "{{ myuser }}"
