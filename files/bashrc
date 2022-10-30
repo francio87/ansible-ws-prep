@@ -65,11 +65,11 @@ alias ssc='~/.config/scripts/ssc.sh'
 # Infinite History
 #
 
-HISTSIZE=
-HISTFILESIZE=
-HISTCONTROL=ignoredups:erasedups
-HISTTIMEFORMAT="%F %T "
-shopt -s histappend
+export HISTFILESIZE=
+export HISTSIZE=
+export HISTTIMEFORMAT="[%F %T] "
+export HISTFILE=~/.bash_eternal_history
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 #
 # Export
