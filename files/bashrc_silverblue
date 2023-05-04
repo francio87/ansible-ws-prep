@@ -1,0 +1,139 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
+then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+if [ -d ~/.bashrc.d ]; then
+	for rc in ~/.bashrc.d/*; do
+		if [ -f "$rc" ]; then
+			. "$rc"
+		fi
+	done
+fi
+
+unset rc
+
+# ADDED
+
+toolbox_or_not() {
+    HN=$(hostname)
+    if [ $HN = "toolbox" ]
+    then
+	    echo "$(get_toolbox_emoji)\[\033[38;5;094m\]"
+    else
+	    echo ""
+    fi
+}
+
+get_toolbox_name() {
+	sed -nr 's/^name="(.*)"$/\1/p' /run/.containerenv
+}
+
+get_toolbox_emoji() {
+	TBNAME=$(get_toolbox_name)
+	case $TBNAME in
+
+		brave)
+			echo 🦁
+			;;
+
+		brave-beta)
+			echo 🦁
+			;;
+
+		chrome)
+			echo ⚽
+			;;
+
+		guvc)
+			echo 🧘
+			;;
+		cdev)
+			echo 🅲
+			;;
+		cli)
+			echo 🖥️
+			;;
+
+		*)
+			echo 🤷
+			;;
+	esac
+}
+
+#export PS1="\[\033[1;37m\]<$(toolbox_or_not):\u|\[\033[32m\]\w\[\033[01;31m\]\$(parse_git_branch)\[\033[97m\]>\[\033[0m\] "
+#export PS1="\[\033[1;37m\]$(toolbox_or_not)\u|\[\033[32m\]\w\[\033[01;31m\]\[\033[97m\]>\[\033[0m\] "
+
+
+#export PS1="\[\033[1;37m\]$(toolbox_or_not) \[\033[32m\]\w\[\033[01;31m\]\[\033[97m\] $\[\033[0m\] "
+
+
+
+if [[ ${EUID} == 0 ]] ; then
+	PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
+else
+	#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+	PS1="\[\033[1;37m\]$(toolbox_or_not) \\[\033[38;5;2m\]\w\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
+fi
+
+#
+# Aliases
+#
+
+alias ls='ls --color=auto'
+alias grep='grep --colour=auto'
+alias egrep='egrep --colour=auto'
+alias fgrep='fgrep --colour=auto'
+alias ll='ls -hal'
+
+#
+# Confirm Copy / Move / Link
+#
+
+alias cp='cp -i'
+alias mv='mv -i'
+alias ln='ln -i'
+
+#
+# Custom Alias
+#
+
+alias ssc='~/.config/scripts/ssc.sh'
+
+#
+# Infinite History
+#
+#
+
+export HISTFILESIZE=
+export HISTSIZE=
+export HISTTIMEFORMAT="[%F %T] "
+# Change the file location because certain bash sessions truncate .bash_history file upon close.
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE=~/.bash_eternal_history
+# Force prompt to write history after every command.
+# http://superuser.com/questions/20900/bash-history-loss
+#PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+PROMPT_COMMAND="${PROMPT_COMMAND:+${PROMPT_COMMAND} ;}history -a";
+
+
+#
+# Export
+#
+
+GPG_TTY=$(tty)
+export GPG_TTY
